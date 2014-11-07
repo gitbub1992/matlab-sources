@@ -5,7 +5,8 @@ clc;
 
 %% init
 
-tdoa = [1e-3,2.5e-3,0.5e-3]; % tableau contenant les différents TDOA en seconde
+generateFiles = 0; % générer les fichiers de tdoa (0 pour non, 1 pour oui)
+tdoa = [0e-3,0e-3,0e-3]; % tableau contenant les différents TDOA en seconde
 %(entre sig1 et sig2,3,4)
 v = 340; % vitesse du son en m/s
 dim = [2,4,2]; % dimensions de la pièce en m (x y z)
@@ -104,32 +105,34 @@ tab4 = tab4';
 % tdoan,x,y,z
 %
 
-for i=1:3
-    switch i
-        case 1,
-            nomFichier = 'tdoa1-2.txt';
-        case 2,
-            nomFichier = 'tdoa1-3.txt';
-        case 3,
-            nomFichier = 'tdoa1-4.txt';
-        otherwise,
-            bugSwitchFileName = 1
-            nomFichier = 'error.txt';
-    end;
-    fileID = fopen([nomFichier], 'w');
-    fprintf(fileID,'%d\n',n*m*p);
-    for j=1:m*n*p
+if generateFiles==1
+    for i=1:3
         switch i
             case 1,
-            fprintf(fileID,'%f,%d,%d,%d\n',tab2(1,j)*1000,tab2(2,j),tab2(3,j),tab2(4,j));
+                nomFichier = 'tdoa1-2.txt';
             case 2,
-            fprintf(fileID,'%f,%d,%d,%d\n',tab3(1,j)*1000,tab3(2,j),tab3(3,j),tab3(4,j));
+                nomFichier = 'tdoa1-3.txt';
             case 3,
-            fprintf(fileID,'%f,%d,%d,%d\n',tab4(1,j)*1000,tab4(2,j),tab4(3,j),tab4(4,j));
+                nomFichier = 'tdoa1-4.txt';
             otherwise,
-            bugSwitch = 1
+                bugSwitchFileName = 1
+                nomFichier = 'error.txt';
         end;
+        fileID = fopen([nomFichier], 'w');
+        fprintf(fileID,'%d\n',n*m*p);
+        for j=1:m*n*p
+            switch i
+                case 1,
+                fprintf(fileID,'%f,%d,%d,%d\n',tab2(1,j)*1000,tab2(2,j),tab2(3,j),tab2(4,j));
+                case 2,
+                fprintf(fileID,'%f,%d,%d,%d\n',tab3(1,j)*1000,tab3(2,j),tab3(3,j),tab3(4,j));
+                case 3,
+                fprintf(fileID,'%f,%d,%d,%d\n',tab4(1,j)*1000,tab4(2,j),tab4(3,j),tab4(4,j));
+                otherwise,
+                bugSwitch = 1
+            end;
+        end;
+        fclose(fileID);
     end;
-    fclose(fileID);
 end;
 
