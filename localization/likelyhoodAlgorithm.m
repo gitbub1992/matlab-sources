@@ -10,7 +10,7 @@ localization
 %% init
 
 dist = zeros(1,4); % tableau des distances aux émetteurs
-tdoa = [1e-3,5e-3,4e-3]; % tableau contenant les différents TDOA en seconde (entre sig1 et sig2,3,4)
+tdoa = [-2e-3,-4e-3,-2e-3]; % tableau contenant les différents TDOA en seconde (entre sig1 et sig2,3,4)
 % tdoa<0 <=> drone + près de émetteur 1 que de x
 seuilRechercheErreur = 3e-4; % valeur de l'erreur a fournir a 
 % la fonction de recherche d'un intervalle de points sous un seuil d'erreur

@@ -13,6 +13,18 @@ resultInterOn = 0; % afficher nbCalculs et points trouvés a la moitié de l'algo
 resultFinOn = 1; % afficher nbCalculs a la fin de l'algo
 % 0 : non, 1 : oui pour les 2 précédents
 nbCalculs = 0; % nombre de calculs effectués par l'algo
+tolerance = 1; % tolérance sur la corrélation (en nombre de cubes)
+% correspond au nombre de cubes d'erreur dans une direction que l'on peut
+% admettre comme erreur (ex : 1 cube de tolérance consiste a rechercher un
+% cube et tous les cubes qui lui sont adjacents)
+% indication : utiliser une tolérance de 1 au minimum, 0 est trop
+% restrictif et pourra conduire a une recherche ne donnant aucun résultat
+% (perte de temps)
+toleranceMax = 2; % tolérance maximale jusqu'a laquelle aller si on 
+% ne trouve pas de points communs avant
+% ajuster cette valeur en fonction de la précision souhaitée et de la
+% confiance dans les valeurs de TDOA étudiées (plus les valeurs de TDOA
+% sont fiables, plus la tolérance maximale peut être faible et inversement
 
 %% classement des intervalles selon leur taille
 
@@ -83,86 +95,110 @@ end;
 
 %% recherche de points communs aux 3 intervalles
 
-% on cherchera les points communs parmi les points du plus petit intervalle
-% cela réduit le nombre de points à chercher et les calculs effectués
-indCommuns = zeros(1,length(itMin)); % initialisation du tableau contenant les indices (dans tabMin) des points communs
-ptrCom = 1; % pointeur indiquant la prochaine case libre dans le tableau indCommuns
+continuer = 1; % booleen indiquant l'arret de la tentative de corrélation
+% on continue a essayer de correler tant qu'on a pas trouvé au moins 1
+% point et qu'on a pas atteint toleranceMax (tolerance incrémenté si on ne
+% trouve pas de point commun)
+while continuer
 
-continuerMoy = 1;
-j = min(itMoy);
+    % on cherchera les points communs parmi les points du plus petit intervalle
+    % cela réduit le nombre de points à chercher et les calculs effectués
+    indCommuns = zeros(1,length(itMin)); % initialisation du tableau contenant les indices (dans tabMin) des points communs
+    ptrCom = 1; % pointeur indiquant la prochaine case libre dans le tableau indCommuns
 
-% on commence par chercher dans l'intervalle de taille moyenne les points
-% communs avec l'intervalle de taille minimale
-% on laisse une marge d'erreur d'un cube pour dire qu'un point soit commun
-% pour prendre en compte les imprécisions de détermination du TDOA
-for i=itMin % boucle sur tous les éléments du petit intervalle
-    while continuerMoy % boucle sur tous les éléments de l'intervalle moyen
-        nbCalculs = nbCalculs+1;
-        % si un cube ou un cube directement adjaçent est présent dans les 2
-        % intervalles
-        if (tabMin(2,i)==tabMoy(2,j) || tabMin(2,i)==tabMoy(2,j)+1 || tabMin(2,i)==tabMoy(2,j)-1) && (tabMin(3,i)==tabMoy(3,j) || tabMin(3,i)==tabMoy(3,j)+1 || tabMin(3,i)==tabMoy(3,j)-1) && (tabMin(4,i)==tabMoy(4,j) || tabMin(4,i)==tabMoy(4,j)+1 || tabMin(4,i)==tabMoy(4,j)-1)
-            % on l'ajoute a la liste des communs et on quitte la boucle sur
-            % l'intervalle moyen a ce moment la (inutile d'aller plus loin
-            % car le point est déjà validé)
-            indCommuns(1,ptrCom) = i;
-            ptrCom = ptrCom+1;
-            continuerMoy = 0;
-        else
-            % sinon on incrémente l'indice de l'intervalle moyen jusqu'a en
-            % atteindre la fin
-            j = j+1;
-            if j==max(itMoy)+1
-                continuerMoy = 0;
-            end;
-        end;
-    end;
     continuerMoy = 1;
     j = min(itMoy);
-end;
 
-if resultInterOn==1
-    % affichage des données concernant les points communs aux intervalle min et
-    % moy : nombre de calculs, points trouvés
-    nbCalculs
-    indPtsCommunsItMinItMoy=indCommuns(1,[1:ptrCom-1])
-end;
-continuerMax = 1;
-k = min(itMax);
-
-% même fonctionnement que précédemment mais en prenant comme base les
-% points communs issus de la recherche précédente
-for i=1:ptrCom-1
-    ind = indCommuns(1,i);
-    while continuerMax
-        nbCalculs = nbCalculs+1;
-        if (tabMin(2,ind)==tabMax(2,k) || tabMin(2,ind)==tabMax(2,k)+1 || tabMin(2,ind)==tabMax(2,k)-1) && (tabMin(3,ind)==tabMax(3,k) || tabMin(3,ind)==tabMax(3,k)+1 || tabMin(3,ind)==tabMax(3,k)-1) && (tabMin(4,ind)==tabMax(4,k) || tabMin(4,ind)==tabMax(4,k)+1 || tabMin(4,ind)==tabMax(4,k)-1)
-            continuerMax = 0;
-        else
-            k = k+1;
-            if k==max(itMax)+1
-                continuerMax = 0;
-                indCommuns(1,i) = 0;
+    % on commence par chercher dans l'intervalle de taille moyenne les points
+    % communs avec l'intervalle de taille minimale
+    % on laisse une marge d'erreur d'un cube pour dire qu'un point soit commun
+    % pour prendre en compte les imprécisions de détermination du TDOA
+    for i=itMin % boucle sur tous les éléments du petit intervalle
+        while continuerMoy % boucle sur tous les éléments de l'intervalle moyen
+            nbCalculs = nbCalculs+1;
+            % si un cube ou un cube directement adjaçent est présent dans les 2
+            % intervalles
+            if (tabMin(2,i)==tabMoy(2,j) || tabMin(2,i)==tabMoy(2,j)+tolerance || tabMin(2,i)==tabMoy(2,j)-tolerance) && (tabMin(3,i)==tabMoy(3,j) || tabMin(3,i)==tabMoy(3,j)+tolerance || tabMin(3,i)==tabMoy(3,j)-tolerance) && (tabMin(4,i)==tabMoy(4,j) || tabMin(4,i)==tabMoy(4,j)+tolerance || tabMin(4,i)==tabMoy(4,j)-tolerance)
+                % on l'ajoute a la liste des communs et on quitte la boucle sur
+                % l'intervalle moyen a ce moment la (inutile d'aller plus loin
+                % car le point est déjà validé)
+                indCommuns(1,ptrCom) = i;
+                ptrCom = ptrCom+1;
+                continuerMoy = 0;
+            else
+                % sinon on incrémente l'indice de l'intervalle moyen jusqu'a en
+                % atteindre la fin
+                j = j+1;
+                if j==max(itMoy)+1
+                    continuerMoy = 0;
+                end;
             end;
         end;
+        continuerMoy = 1;
+        j = min(itMoy);
+    end;
+
+    if resultInterOn==1
+        % affichage des données concernant les points communs aux intervalle min et
+        % moy : nombre de calculs, points trouvés
+        nbCalculs
+        indPtsCommunsItMinItMoy=indCommuns(1,[1:ptrCom-1])
     end;
     continuerMax = 1;
     k = min(itMax);
-end;
 
-if resultFinOn==1
-    % affichage du nombre total de calculs
-    nb_calcul_final_correlation = nbCalculs
-end;
+    % même fonctionnement que précédemment mais en prenant comme base les
+    % points communs issus de la recherche précédente
+    for i=1:ptrCom-1
+        ind = indCommuns(1,i);
+        while continuerMax
+            nbCalculs = nbCalculs+1;
+            if (tabMin(2,ind)==tabMax(2,k) || tabMin(2,ind)==tabMax(2,k)+tolerance || tabMin(2,ind)==tabMax(2,k)-tolerance) && (tabMin(3,ind)==tabMax(3,k) || tabMin(3,ind)==tabMax(3,k)+tolerance || tabMin(3,ind)==tabMax(3,k)-tolerance) && (tabMin(4,ind)==tabMax(4,k) || tabMin(4,ind)==tabMax(4,k)+tolerance || tabMin(4,ind)==tabMax(4,k)-tolerance)
+                continuerMax = 0;
+            else
+                k = k+1;
+                if k==max(itMax)+1
+                    continuerMax = 0;
+                    indCommuns(1,i) = 0;
+                end;
+            end;
+        end;
+        continuerMax = 1;
+        k = min(itMax);
+    end;
 
-%% parcours du tableau des indices des points communs pour trouver les points communs aux 3 tableaux et leur nombre
+    if resultFinOn==1
+        % affichage du nombre total de calculs
+        nb_calcul_final_correlation = nbCalculs
+    end;
 
-% comptage des points communs
-tCommuns = 0;
-for i=1:ptrCom
-    if indCommuns(1,i)>0
-        tCommuns = tCommuns+1;
+    % parcours du tableau des indices des points communs pour trouver les points communs aux 3 tableaux et leur nombre
+
+    % comptage des points communs
+    tCommuns = 0;
+    for i=1:ptrCom
+        if indCommuns(1,i)>0
+            tCommuns = tCommuns+1;
+        end;
+    end;
+
+    % on teste si la corrélation a réussi
+    if tCommuns>0
+        % si oui on peut sortir de la boucle
+        continuer = 0;
+    else
+        % sinon
+        if tolerance<toleranceMax
+            % on incrémente tolérance si elle est inférieure au max défini et on recommence
+            tolerance = tolerance+1;
+        else
+            % si elle est égale au max, on arrête l'algo
+            continuer = 0;
+        end;
     end;
 end;
+
+%% construction du résultat
 
 % si au moins un point commun on le renvoie
 if tCommuns>0
@@ -175,7 +211,7 @@ if tCommuns>0
         end;
     end;
 else % sinon on calcule le barycentre des points ayant l'erreur minimale sur chaque intervalle (erreur probable sur un TDOA)
-    barycentre = 1
+    correlation_echoue_barycentre_calcule = 1
     pointsCommuns = zeros(3,1);
     pointsCommuns(1,1) = floor((tab1(2,min1)+tab2(2,min2)+tab3(2,min3))/3);
     pointsCommuns(2,1) = floor((tab1(3,min1)+tab2(3,min2)+tab3(3,min3))/3);
