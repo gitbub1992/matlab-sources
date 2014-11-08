@@ -1,2 +1,4 @@
 #ignore all tmp files
 *~
+#ignore matlab temp files
+*.asv

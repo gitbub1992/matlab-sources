@@ -5,15 +5,16 @@ clc;
 
 %% init
 
+plotTdoaOn = 0; % afficher les TDOA calculés pour chaque émetteur (0 pour non, 1 pour oui)
 generateFiles = 0; % générer les fichiers de tdoa (0 pour non, 1 pour oui)
-tdoa = [0e-3,0e-3,0e-3]; % tableau contenant les différents TDOA en seconde
-%(entre sig1 et sig2,3,4)
 v = 340; % vitesse du son en m/s
 dim = [2,4,2]; % dimensions de la pièce en m (x y z)
-coteCube = 0.25; % longueur du coté des cubes en quoi la pièce sera divisée
-m = dim(1)/coteCube; % taille de la matrice selon x
-n = dim(2)/coteCube; % taille de la matrice selon y
-p = dim(3)/coteCube; % taille de la matrice selon z
+coteCube = 0.2; % longueur du coté des cubes en quoi la pièce sera divisée
+m = floor(dim(1)/coteCube); % taille de la matrice selon x
+n = floor(dim(2)/coteCube); % taille de la matrice selon y
+p = floor(dim(3)/coteCube); % taille de la matrice selon z
+% les tailles précédentes peuvent ignorer une partie de la pièce à cause
+% de l'utilisation de floor -> réduit possiblement d'un cube la pièce
 beacons = [0,0,dim(3); dim(1),0,dim(3); dim(1),dim(2),dim(3); 0,dim(2),dim(3)]; % position des émetteurs
 % creation de variables depuis tableau beacons :
 x1 = beacons(1,1); y1 = beacons(1,2); z1 = beacons(1,3); % coordonnées x, y et z du beacon 1
@@ -97,6 +98,20 @@ tab3 = sortrows(tab3');
 tab3 = tab3';
 tab4 = sortrows(tab4');
 tab4 = tab4';
+
+% affichage des tdoas calculés pour chaque émetteur
+if plotTdoaOn==1
+    figure;
+    subplot(3,1,1),plot(tab2(1,:));
+    title('tdoa 1-2');
+    grid on;
+    subplot(3,1,2),plot(tab3(1,:));
+    title('tdoa 1-3');
+    grid on;
+    subplot(3,1,3),plot(tab4(1,:));
+    title('tdoa 1-4');
+    grid on;
+end;
 
 %% génération des fichiers sous le format suivant :
 % nombre_de_points
