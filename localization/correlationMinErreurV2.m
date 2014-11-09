@@ -13,7 +13,8 @@ resultInterOn = 0; % afficher nbCalculs et points trouvés a la moitié de l'algo
 resultFinOn = 1; % afficher nbCalculs a la fin de l'algo
 % 0 : non, 1 : oui pour les 2 précédents
 nbCalculs = 0; % nombre de calculs effectués par l'algo
-tolerance = 1; % tolérance sur la corrélation (en nombre de cubes)
+toleranceMin = 0; % tolérance de départ pour l'algo
+tolerance = toleranceMin; % tolérance sur la corrélation (en nombre de cubes)
 % correspond au nombre de cubes d'erreur dans une direction que l'on peut
 % admettre comme erreur (ex : 1 cube de tolérance consiste a rechercher un
 % cube et tous les cubes qui lui sont adjacents)
@@ -101,6 +102,9 @@ continuer = 1; % booleen indiquant l'arret de la tentative de corrélation
 % trouve pas de point commun)
 while continuer
 
+    % affichage du nombre de passage dans la boucle de corrélation
+    nombre_tentative_correlation = tolerance
+    
     % on cherchera les points communs parmi les points du plus petit intervalle
     % cela réduit le nombre de points à chercher et les calculs effectués
     indCommuns = zeros(1,length(itMin)); % initialisation du tableau contenant les indices (dans tabMin) des points communs
@@ -122,8 +126,32 @@ while continuer
                 % on l'ajoute a la liste des communs et on quitte la boucle sur
                 % l'intervalle moyen a ce moment la (inutile d'aller plus loin
                 % car le point est déjà validé)
-                indCommuns(1,ptrCom) = i;
-                ptrCom = ptrCom+1;
+                % comme on peut passer plusieurs fois dans cette boucle a
+                % cause de la tolérance, on recherche d'abord si le point
+                % n'a pas déjà été ajouté
+                if tolerance>toleranceMin % au premier passage sur la tolérance, aucun point dans le tableau donc pas besoin de vérifier s'il existe déjà
+                    recherche = 1;
+                    pt = 1;
+                    while recherche==1
+                        if indCommuns(1,pt)==i
+                            recherche = 0;
+                            existe = 1;
+                        else
+                            pt = pt+1;
+                            if pt>=ptrCom
+                                existe = 0;
+                                recherche = 0;
+                            end;
+                        end;
+                    end;
+                    if existe==0
+                        indCommuns(1,ptrCom) = i;
+                        ptrCom = ptrCom+1;
+                    end;
+                else
+                    indCommuns(1,ptrCom) = i;
+                    ptrCom = ptrCom+1;
+                end;
                 continuerMoy = 0;
             else
                 % sinon on incrémente l'indice de l'intervalle moyen jusqu'a en
@@ -146,11 +174,12 @@ while continuer
     end;
     continuerMax = 1;
     k = min(itMax);
+    indCommunsFin = indCommuns;
 
     % même fonctionnement que précédemment mais en prenant comme base les
     % points communs issus de la recherche précédente
     for i=1:ptrCom-1
-        ind = indCommuns(1,i);
+        ind = indCommunsFin(1,i);
         while continuerMax
             nbCalculs = nbCalculs+1;
             if (tabMin(2,ind)==tabMax(2,k) || tabMin(2,ind)==tabMax(2,k)+tolerance || tabMin(2,ind)==tabMax(2,k)-tolerance) && (tabMin(3,ind)==tabMax(3,k) || tabMin(3,ind)==tabMax(3,k)+tolerance || tabMin(3,ind)==tabMax(3,k)-tolerance) && (tabMin(4,ind)==tabMax(4,k) || tabMin(4,ind)==tabMax(4,k)+tolerance || tabMin(4,ind)==tabMax(4,k)-tolerance)
@@ -159,7 +188,7 @@ while continuer
                 k = k+1;
                 if k==max(itMax)+1
                     continuerMax = 0;
-                    indCommuns(1,i) = 0;
+                    indCommunsFin(1,i) = 0;
                 end;
             end;
         end;
@@ -169,7 +198,7 @@ while continuer
 
     if resultFinOn==1
         % affichage du nombre total de calculs
-        nb_calcul_final_correlation = nbCalculs
+        nb_calculs_final_correlation = nbCalculs
     end;
 
     % parcours du tableau des indices des points communs pour trouver les points communs aux 3 tableaux et leur nombre
@@ -177,7 +206,7 @@ while continuer
     % comptage des points communs
     tCommuns = 0;
     for i=1:ptrCom
-        if indCommuns(1,i)>0
+        if indCommunsFin(1,i)>0
             tCommuns = tCommuns+1;
         end;
     end;
@@ -205,8 +234,8 @@ if tCommuns>0
     ptr = 1;
     pointsCommuns = zeros(3,tCommuns); % tableau contenant les points communs
     for i=1:ptrCom
-        if indCommuns(1,i)>0
-            pointsCommuns(:,ptr) = [tabMin(2,indCommuns(1,i));tabMin(3,indCommuns(1,i));tabMin(4,indCommuns(1,i))];
+        if indCommunsFin(1,i)>0
+            pointsCommuns(:,ptr) = [tabMin(2,indCommunsFin(1,i));tabMin(3,indCommunsFin(1,i));tabMin(4,indCommunsFin(1,i))];
             ptr = ptr+1;
         end;
     end;
