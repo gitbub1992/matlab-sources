@@ -8,8 +8,8 @@ clc;
 plotTdoaOn = 0; % afficher les TDOA calculés pour chaque émetteur (0 pour non, 1 pour oui)
 generateFiles = 0; % générer les fichiers de tdoa (0 pour non, 1 pour oui)
 v = 340; % vitesse du son en m/s
-dim = [2,4,2]; % dimensions de la pièce en m (x y z)
-coteCube = 0.2; % longueur du coté des cubes en quoi la pièce sera divisée
+dim = [3.5,5.5,2.8]; % dimensions de la pièce en m (x y z)
+coteCube = 0.25; % longueur du coté des cubes en quoi la pièce sera divisée
 m = floor(dim(1)/coteCube); % taille de la matrice selon x
 n = floor(dim(2)/coteCube); % taille de la matrice selon y
 p = floor(dim(3)/coteCube); % taille de la matrice selon z
@@ -89,6 +89,12 @@ end;
 tab2(1,:)=tabR2;
 tab3(1,:)=tabR3;
 tab4(1,:)=tabR4;
+
+% on garde en mémoire les tableaux non ordonnés (coordonnées des points au
+% même endroit)
+t2raw = tab2;
+t3raw = tab3;
+t4raw = tab4;
 
 %% tri des matrices par ordre croissant de TDOA
 
