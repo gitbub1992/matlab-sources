@@ -140,15 +140,17 @@ if generateFiles==1
                 nomFichier = 'error.txt';
         end;
         fileID = fopen([nomFichier], 'w');
-        fprintf(fileID,'%d\n',n*m*p);
+        if i==1
+            fprintf(fileID,'%d\n',n*m*p);
+        end;
         for j=1:m*n*p
             switch i
                 case 1,
-                fprintf(fileID,'%f,%d,%d,%d\n',tab2(1,j)*1000,tab2(2,j),tab2(3,j),tab2(4,j));
+                fprintf(fileID,'%f,%f,%f,%f\n',t2raw(1,j)*1000,t2raw(2,j)*coteCube,t2raw(3,j)*coteCube,tab2(4,j)*coteCube);
                 case 2,
-                fprintf(fileID,'%f,%d,%d,%d\n',tab3(1,j)*1000,tab3(2,j),tab3(3,j),tab3(4,j));
+                fprintf(fileID,'%f,%f,%f,%f\n',t3raw(1,j)*1000,t3raw(2,j)*coteCube,t3raw(3,j)*coteCube,tab3(4,j)*coteCube);
                 case 3,
-                fprintf(fileID,'%f,%d,%d,%d\n',tab4(1,j)*1000,tab4(2,j),tab4(3,j),tab4(4,j));
+                fprintf(fileID,'%f,%f,%f,%f\n',t4raw(1,j)*1000,t4raw(2,j)*coteCube,t4raw(3,j)*coteCube,tab4(4,j)*coteCube);
                 otherwise,
                 bugSwitch = 1
             end;

@@ -14,21 +14,24 @@ tdoa = [1e-3,0e-3,2e-3]; % tableau contenant les différents TDOA en seconde (ent
 % tdoa<0 <=> drone + près de émetteur 1 que de x
 seuilRechercheErreur = 3e-4; % valeur de l'erreur a fournir a 
 % la fonction de recherche d'un intervalle de points sous un seuil d'erreur
+
 plot3dOn = 1; % activer le plot en 3D : 0 pour non, 1 pour oui
-dicoOn = 0; % faire la recherche et le plot des résultats par dicotomie (0 pour non, 1 pour oui)
-resultInterOn = 1; % afficher les résultats intermédiaires (0 : non, 1 : oui)
-algoPersoOn = 0; % lancer l'algo de corrélation perso (mix fingerprint-likelihood) : 0 non, 1 oui
+resultInterOn = 0; % afficher les résultats intermédiaires (0 : non, 1 : oui)
+algoPersoOn = 1; % lancer l'algo de corrélation perso (mix fingerprint-likelihood) : 0 non, 1 oui
+tdoaKnowPositionOn = 1; % activer le caclul des TDOAs a partir d'une position connue, 1 oui, 0 non
 
-%% recherche par dicotomie dans les tableaux pour trouver le point auquel est le drone
+%% Fixation des TDOA en utilisant une position connue
 
-if dicoOn==1
-    p2 = zeros(1,3); % point trouvé pour le tdoa1-2
-    p3 = zeros(1,3); % point trouvé pour le tdoa1-3
-    p4 = zeros(1,3); % point trouvé pour le tdoa1-4
-
-    p2 = rechercheDicotomique(tdoa(1),tab2)*coteCube
-    p3 = rechercheDicotomique(tdoa(2),tab3)*coteCube
-    p4 = rechercheDicotomique(tdoa(3),tab4)*coteCube
+if tdoaKnowPositionOn==1
+    % coordonnées du drone sur chacun des axes, donner les valeurs voulues
+    X = 1.75;
+    Y = 2.75;
+    Z = 1.25;
+    tdoa(1) = (sqrt((x1-X)^2+(y1-Y)^2+(z1-Z)^2) - sqrt((x2-X)^2+(y2-Y)^2+(z2-Z)^2))/v;
+    tdoa(2) = (sqrt((x1-X)^2+(y1-Y)^2+(z1-Z)^2) - sqrt((x3-X)^2+(y3-Y)^2+(z3-Z)^2))/v;
+    tdoa(3) = (sqrt((x1-X)^2+(y1-Y)^2+(z1-Z)^2) - sqrt((x4-X)^2+(y4-Y)^2+(z4-Z)^2))/v;    
+    tdoa
+    tdoa = tdoa +rand(1,3)*1e-3-rand(1,3)*1e-3
 end;
 
 %% recherche d'un intervalle de points en dessous d'une certaine erreur dans les 3 tableaux
@@ -99,24 +102,8 @@ end;
 
 %% affichage en 3D des points trouvés par les différents algos
 
-if dicoOn
-    % matrice contenant les coordonnées des points trouvés par dicotomie
-    ps=zeros(3);
-    ps(1,:)=p2;
-    ps(2,:)=p3;
-    ps(3,:)=p4;
-end;
-
-
-% affichage 3D des points trouvés (a revoir)
+% affichage 3D des points trouvés
 if plot3dOn==1
-    if dicoOn
-        figure;
-        plot3(ps(:,1),ps(:,2),ps(:,3),'+');
-        axis([0,dim(1),0,dim(2),0,dim(3)]);
-        title('points trouvés par dicotomie')
-        grid on;
-    end;
     
     PT = P';
     

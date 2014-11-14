@@ -26,7 +26,7 @@ DistanceToBeacon = zeros(1,4);
 for id = 1 : 4
     DistanceToBeacon(id) = sqrt( (BX(id)-TheoricalX)^2 + (BY(id)-TheoricalY)^2 + (BZ(id)-TheoricalZ)^2 );
 end
-Sample = DistanceToBeacon / SoundSpeed * 1e6; % µs
+Sample = (DistanceToBeacon / SoundSpeed * 1e6)+rand(1,4)*1e3; % µs
 Sample = Sample - min(Sample);
 clear DistanceToBeacon
 

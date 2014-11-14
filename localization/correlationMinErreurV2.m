@@ -205,7 +205,7 @@ while continuer
 
     % comptage des points communs
     tCommuns = 0;
-    for i=1:ptrCom
+    for i=1:ptrCom-1
         if indCommunsFin(1,i)>0
             tCommuns = tCommuns+1;
         end;
@@ -233,7 +233,7 @@ end;
 if tCommuns>0
     ptr = 1;
     pointsCommuns = zeros(3,tCommuns); % tableau contenant les points communs
-    for i=1:ptrCom
+    for i=1:ptrCom-1
         if indCommunsFin(1,i)>0
             pointsCommuns(:,ptr) = [tabMin(2,indCommunsFin(1,i));tabMin(3,indCommunsFin(1,i));tabMin(4,indCommunsFin(1,i))];
             ptr = ptr+1;
