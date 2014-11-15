@@ -1,6 +1,10 @@
 
 // Exponential filter for the frequency 39,5 kHz
 
+#ifndef _EXP410_H__
+#define _EXP410_H__
+
+
 #include "global.h"
 
 const int32_t cos_41000[256]= {
@@ -261,7 +265,7 @@ const int32_t cos_41000[256]= {
 -1752,
 4096,
 };
-const int32_t_41000[256]= {
+const int32_t sin_41000[256]= {
 3702,
 -3167,
 -996,
@@ -519,3 +523,5 @@ const int32_t_41000[256]= {
 -3703,
 -1,
 };
+
+#endif

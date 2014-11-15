@@ -1,6 +1,10 @@
 
 // Exponential filter for the frequency 40,0 kHz
 
+#ifndef _EXP400_H__
+#define _EXP400_H__
+
+
 #include "global.h"
 
 const int32_t cos_40000[256]= {
@@ -519,3 +523,5 @@ const int32_t sin_40000[256]= {
 -3785,
 -1,
 };
+
+#endif
