@@ -6,7 +6,7 @@ clc;
 %% init
 
 plotTdoaOn = 0; % afficher les TDOA calculés pour chaque émetteur (0 pour non, 1 pour oui)
-generateFiles = 0; % générer les fichiers de tdoa (0 pour non, 1 pour oui)
+generateFiles = 1; % générer les fichiers de tdoa (0 pour non, 1 pour oui)
 v = 340; % vitesse du son en m/s
 dim = [4.2,6.6,2.9]; % dimensions de la pièce en m (x y z)
 coteCube = 0.2; % longueur du coté des cubes en quoi la pièce sera divisée
