@@ -1,4 +1,4 @@
-function [ points ] = simplifiedLikelyhood( t1, t2, t3, TDOAs )
+function [ points, min ] = simplifiedLikelyhood( t1, t2, t3, TDOAs , indDebut, indFin)
 % fonction de recherche par vraissemblance :
 % recherche le point ayant le plus de proba d'être celui qui correspond aux
 % tdoas donnés en paramètres
@@ -28,7 +28,15 @@ end;
 
 % plus le coefficient d'un point est petit, plus il est vraisemblable
 % (somme des erreurs sur les TDOAs la plus faible)
-
+minV = 10000;
+indMin = 0;
+for i=indDebut:indFin
+    if(tabLikely(1,i)<minV)
+        minV = tabLikely(1,i);
+        indMin = i;
+    end;
+end;
+min = [tabLikely(2,indMin),tabLikely(3,indMin),tabLikely(4,indMin)];
 tabLikely = sortrows(tabLikely');
 tabLikely = tabLikely';
 

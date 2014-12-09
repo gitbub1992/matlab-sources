@@ -10,28 +10,33 @@ localization
 %% init
 
 dist = zeros(1,4); % tableau des distances aux émetteurs
-tdoa = [1e-3,0e-3,2e-3]; % tableau contenant les différents TDOA en seconde (entre sig1 et sig2,3,4)
+tdoa = [(0)*1e-3,(0)*1e-3,(0)*1e-3]; % tableau contenant les différents TDOA en seconde (entre sig1 et sig2,3,4)
 % tdoa<0 <=> drone + près de émetteur 1 que de x
 seuilRechercheErreur = 3e-4; % valeur de l'erreur a fournir a 
 % la fonction de recherche d'un intervalle de points sous un seuil d'erreur
 
-plot3dOn = 1; % activer le plot en 3D : 0 pour non, 1 pour oui
+plot3dOn = 0; % activer le plot en 3D : 0 pour non, 1 pour oui
 resultInterOn = 0; % afficher les résultats intermédiaires (0 : non, 1 : oui)
-algoPersoOn = 1; % lancer l'algo de corrélation perso (mix fingerprint-likelihood) : 0 non, 1 oui
+algoPersoOn = 0; % lancer l'algo de corrélation perso (mix fingerprint-likelihood) : 0 non, 1 oui
 tdoaKnowPositionOn = 1; % activer le caclul des TDOAs a partir d'une position connue, 1 oui, 0 non
 
 %% Fixation des TDOA en utilisant une position connue
 
 if tdoaKnowPositionOn==1
     % coordonnées du drone sur chacun des axes, donner les valeurs voulues
-    X = 1.75;
-    Y = 2.75;
-    Z = 1.25;
+    X = 2.1;
+    Y = 3.3;
+    Z = 0.2;
+    ind1 = (floor(Z/coteCube)-1)*m*n
+    if ind1==0
+        ind1=1;
+    end;
+    ind2 = (floor(Z/coteCube)+1)*m*n
     tdoa(1) = (sqrt((x1-X)^2+(y1-Y)^2+(z1-Z)^2) - sqrt((x2-X)^2+(y2-Y)^2+(z2-Z)^2))/v;
     tdoa(2) = (sqrt((x1-X)^2+(y1-Y)^2+(z1-Z)^2) - sqrt((x3-X)^2+(y3-Y)^2+(z3-Z)^2))/v;
     tdoa(3) = (sqrt((x1-X)^2+(y1-Y)^2+(z1-Z)^2) - sqrt((x4-X)^2+(y4-Y)^2+(z4-Z)^2))/v;    
     tdoa
-    tdoa = tdoa +rand(1,3)*1e-3-rand(1,3)*1e-3
+    %tdoa = tdoa +rand(1,3)*1e-3-rand(1,3)*1e-3
 end;
 
 %% recherche d'un intervalle de points en dessous d'une certaine erreur dans les 3 tableaux
@@ -56,12 +61,14 @@ if resultInterOn==1
     if algoPersoOn==1
         p = correlationMinErreurV2(i2,i3,i4,min2,min3,min4,tab2,tab3,tab4)*coteCube
     end;
-    P = simplifiedLikelyhood(t2raw,t3raw,t4raw,tdoa)*coteCube
+    [P,m] = simplifiedLikelyhood(t2raw,t3raw,t4raw,tdoa,ind1,ind2)%*coteCube
 else
     if algoPersoOn==1
         p = correlationMinErreurV2(i2,i3,i4,min2,min3,min4,tab2,tab3,tab4)*coteCube;
     end;
-    P = simplifiedLikelyhood(t2raw,t3raw,t4raw,tdoa)*coteCube;
+    [P,m] = simplifiedLikelyhood(t2raw,t3raw,t4raw,tdoa,ind1,ind2);%*coteCube;
+    P = P*coteCube
+    m = m*coteCube
 end;
 
 % calcul et affichage de la distance du drone a chaque émetteur pour chaque

@@ -8,8 +8,8 @@ clc;
 plotTdoaOn = 0; % afficher les TDOA calculés pour chaque émetteur (0 pour non, 1 pour oui)
 generateFiles = 0; % générer les fichiers de tdoa (0 pour non, 1 pour oui)
 v = 340; % vitesse du son en m/s
-dim = [3.5,5.5,2.8]; % dimensions de la pièce en m (x y z)
-coteCube = 0.25; % longueur du coté des cubes en quoi la pièce sera divisée
+dim = [4.2,6.6,2.9]; % dimensions de la pièce en m (x y z)
+coteCube = 0.2; % longueur du coté des cubes en quoi la pièce sera divisée
 m = floor(dim(1)/coteCube); % taille de la matrice selon x
 n = floor(dim(2)/coteCube); % taille de la matrice selon y
 p = floor(dim(3)/coteCube); % taille de la matrice selon z
@@ -91,10 +91,35 @@ tab3(1,:)=tabR3;
 tab4(1,:)=tabR4;
 
 % on garde en mémoire les tableaux non ordonnés (coordonnées des points au
-% même endroit)
+% même endroit, plages de points à z constant)
 t2raw = tab2;
 t3raw = tab3;
 t4raw = tab4;
+% classement des tableaux par plans à z constant
+% t2
+t2raw(1,:)=tab2(4,:);
+t2raw(4,:)=tab2(1,:);
+t2raw = sortrows(t2raw');
+t2raw = t2raw';
+t2bis = t2raw(1,:);
+t2raw(1,:) = t2raw(4,:);
+t2raw(4,:) = t2bis;
+% t3
+t3raw(1,:)=tab3(4,:);
+t3raw(4,:)=tab3(1,:);
+t3raw = sortrows(t3raw');
+t3raw = t3raw';
+t3bis = t3raw(1,:);
+t3raw(1,:) = t3raw(4,:);
+t3raw(4,:) = t3bis;
+% t4
+t4raw(1,:)=tab4(4,:);
+t4raw(4,:)=tab4(1,:);
+t4raw = sortrows(t4raw');
+t4raw = t4raw';
+t4bis = t4raw(1,:);
+t4raw(1,:) = t4raw(4,:);
+t4raw(4,:) = t4bis;
 
 %% tri des matrices par ordre croissant de TDOA
 
@@ -141,16 +166,16 @@ if generateFiles==1
         end;
         fileID = fopen([nomFichier], 'w');
         if i==1
-            fprintf(fileID,'%d\n',n*m*p);
+            fprintf(fileID,'%d %d %d %d %f\n',n*m*p, m, n, p, coteCube);
         end;
         for j=1:m*n*p
             switch i
                 case 1,
-                fprintf(fileID,'%f,%f,%f,%f\n',t2raw(1,j)*1000,t2raw(2,j)*coteCube,t2raw(3,j)*coteCube,tab2(4,j)*coteCube);
+                fprintf(fileID,'%f,%f,%f,%f\n',t2raw(1,j)*1000,t2raw(2,j)*coteCube,t2raw(3,j)*coteCube,t2raw(4,j)*coteCube);
                 case 2,
-                fprintf(fileID,'%f,%f,%f,%f\n',t3raw(1,j)*1000,t3raw(2,j)*coteCube,t3raw(3,j)*coteCube,tab3(4,j)*coteCube);
+                fprintf(fileID,'%f,%f,%f,%f\n',t3raw(1,j)*1000,t3raw(2,j)*coteCube,t3raw(3,j)*coteCube,t3raw(4,j)*coteCube);
                 case 3,
-                fprintf(fileID,'%f,%f,%f,%f\n',t4raw(1,j)*1000,t4raw(2,j)*coteCube,t4raw(3,j)*coteCube,tab4(4,j)*coteCube);
+                fprintf(fileID,'%f,%f,%f,%f\n',t4raw(1,j)*1000,t4raw(2,j)*coteCube,t4raw(3,j)*coteCube,t4raw(4,j)*coteCube);
                 otherwise,
                 bugSwitch = 1
             end;
