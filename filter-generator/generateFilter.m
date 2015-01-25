@@ -15,7 +15,7 @@ incrementFreq = 500; % incrément de fréquence à chaque boucle (écart entre les f
 freqEchantillonage = 128000; % (Hz)
 tempsEchantillonage = 2e-3; %(S)
 resolution = tempsEchantillonage*freqEchantillonage;
-resolutionCosinus = 4096;
+resolutionCosinus = 2047;
 
 %% MODIF donner un nom au .h à générer
 Nom_Fich1='exp_39000.h';
